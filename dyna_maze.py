@@ -110,7 +110,7 @@ class Agent:
                 self.Q[s] += [np.random.random()]
                 self.model[s] += [np.random.random()]
 
-    def train(self, episode_nums, env, alpha, gamma, eval_epochs):
+    def train(self, episode_nums, env, alpha, gamma, eval_epochs, render=True):
         total_reward = 0
         episode_num = 0
         running_average = []
@@ -123,9 +123,17 @@ class Agent:
                 ActionMemory[s] = []
             ActionMemory[s] += [a]
             s, r, done = env.step(a)
-            env.clear()
-            env.render()
-            print("Cumulative Reward this episode: %.2f"%total_reward)
+            if render == True:
+                env.clear()
+                env.render()
+                print("Cumulative Reward this episode: %.2f"%total_reward)
+            else:
+                print("Please wait, training is in progess.")
+                env.clear()
+                print("Please wait, training is in progess..")
+                env.clear()
+                print("Please wait, training is in progess...")
+                env.clear()
             total_reward += r
             self.Q[p_s][a] += alpha * (r + (gamma * np.max(self.Q[s])) - self.Q[p_s][a])
             self.model[p_s][a] = (r, s)
@@ -208,9 +216,25 @@ def play_human(env):
     print("Total reward attained is: ", total_reward)
 
 env = Environment()
-agent = Agent(env)
-running_average = agent.train(20, env, 0.1, 0.95, 100)
-agent.print_policy()
-plt.plot(running_average)
+agent1 = Agent(env)
+agent2 = Agent(env)
+agent3 = Agent(env)
+agent4 = Agent(env)
+running_average1 = agent1.train(50, env, 0.1, 0.95, 0)
+StateMemory = []
+ActionMemory = {}
+running_average2 = agent2.train(50, env, 0.1, 0.95, 5)
+StateMemory = []
+ActionMemory = {}
+running_average3 = agent3.train(50, env, 0.1, 0.95, 50)
+StateMemory = []
+ActionMemory = {}
+running_average4 = agent4.train(50, env, 0.1, 0.95, 100)
+agent1.print_policy()
+plt.plot(running_average1, label="Planning 0 steps")
+plt.plot(running_average2, label="Planning 5 steps")
+plt.plot(running_average3, label="Planning 50 steps")
+plt.plot(running_average4, label="Planning 100 steps")
+plt.legend()
 plt.title("Running Average")
 plt.show()
